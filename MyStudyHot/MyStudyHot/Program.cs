@@ -6,9 +6,12 @@ class Program
 {
     static void Main(string[] args)
     {
-        Console.WriteLine("Hello, World!");
+
         BoxingTest boxingTest = new BoxingTest();
         //boxingTest.Boxing();
         boxingTest.UnBoxing();
+        UnmanagedMemoryTest unmanagedMemoryTest = new UnmanagedMemoryTest();
+        unmanagedMemoryTest.Test();
+        Console.WriteLine("Hello, World!");
     }
 }
