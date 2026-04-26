@@ -24,8 +24,11 @@ class Program
         Console.WriteLine("获取对象1: " + obj1); // 输出0
         pool.Return(obj1); // 将对象返回池中
         int obj2 = pool.Get(); // 再次获取对象，应该是之前返回的对象
-        Console.WriteLine("获取对象2: " + obj2); // 输出0*/
+        Console.WriteLine("获取对象2: " + obj2); // 输出0
+        WeakReferenceTest.Test();*/
         
-        WeakReferenceTest.Test();
+        AsyncTest2 test = new AsyncTest2();
+        test.DoSomethingAsync();
+        Console.ReadKey();
     }
 }
