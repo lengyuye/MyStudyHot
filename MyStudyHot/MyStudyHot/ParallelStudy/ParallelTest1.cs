@@ -27,6 +27,23 @@ public class ParallelTest1
     {
         //CPU密集型任务
     }
+
+    public void TestException()
+    {
+        try
+        {
+            Parallel.Invoke(()=>{ throw new Exception(); }, 
+                () => {throw new Exception(); });
+        }
+        catch (AggregateException ex)
+        {
+           ex.Handle(exception =>
+           {
+               Console.WriteLine("处理异常: " + exception.Message);
+               return true;
+           });
+        }
+    }
     
     
 }

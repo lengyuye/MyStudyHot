@@ -1,4 +1,5 @@
 ﻿using MyStudyHot.Boxing;
+using MyStudyHot.ParallelStudy;
 
 namespace MyStudyHot;
 
@@ -27,8 +28,10 @@ class Program
         Console.WriteLine("获取对象2: " + obj2); // 输出0
         WeakReferenceTest.Test();*/
         
-        AsyncTest2 test = new AsyncTest2();
-        test.DoSomethingAsync();
+        //AsyncTest2 test = new AsyncTest2();
+        //test.DoSomethingAsync();
+        ParallelTest1 parallelTest1 = new ParallelTest1();
+        parallelTest1.TestException();
         Console.ReadKey();
     }
 }

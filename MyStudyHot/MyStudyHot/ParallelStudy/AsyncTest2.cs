@@ -72,4 +72,128 @@ public class AsyncTest2
             Console.WriteLine($"处理用户 {user.Id}");
         }
     }
+
+    //延迟的例子1
+    static async Task<T> DelayResult<T>(T result, TimeSpan delay)
+    {
+        await Task.Delay(delay);
+        return result;
+    }
+    
+    //延迟的例子2
+    static async Task<string> DownloadStringWithRetries(string url)
+    {
+        using (var client = new HttpClient())
+        {
+            var nextDelay = TimeSpan.FromSeconds(1);
+            for (int i = 0; i < 3; i++)
+            {
+                try
+                {
+                    return await client.GetStringAsync(url);
+                }
+                catch 
+                {
+                    
+                }
+                await Task.Delay(nextDelay);
+                nextDelay *= 2; // 指数回退
+            }
+            return await client.GetStringAsync(url);
+        }
+    }
+    
+    //延迟的例子3
+    static async Task<string> DownloadStringWithTimeout(string url)
+    {
+        using (var client = new HttpClient())
+        {
+            var downloadTask = client.GetStringAsync(url);
+            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(3));
+
+            var completedTask = await Task.WhenAny(downloadTask, timeoutTask);
+            if (completedTask == timeoutTask)
+                return null;
+            return await downloadTask;
+        }
+    }
+
+    static Task<T> NotImplementedAsync<T>()
+    {
+        var tcs = new TaskCompletionSource<T>();
+        tcs.SetException(new NotImplementedException());
+        return tcs.Task;
+    }
+    
+    private static readonly Task<int> _zeroTask = Task.FromResult(0);
+    static Task<int> GetValueAsync()
+    {
+        return _zeroTask;
+    }
+
+    #region 报告进度
+
+    static async Task MyMethodAsync(IProgress<double> progress = null)
+    {
+        double percentComplete = 0;
+        bool done = false;
+        while (!done)
+        {
+            if (progress != null)
+            {
+                progress.Report(percentComplete);
+            }
+        }
+    }
+
+    static async Task CallMyMethodAsync()
+    {
+        var progress = new Progress<double>();
+        progress.ProgressChanged += (s, percent) =>
+        {
+            Console.WriteLine($"进度: {percent}%");
+        };
+        await MyMethodAsync(progress);
+    }
+
+    #endregion
+
+    #region 等待一组任务完成
+
+    async Task Wait1()
+    {
+        Task task1 = Task.Delay(TimeSpan.FromSeconds(1));
+        Task task2 = Task.Delay(TimeSpan.FromSeconds(2));
+        Task task3 = Task.Delay(TimeSpan.FromSeconds(1));
+        await Task.WhenAll(task1, task2,task3);
+    }
+
+    async Task Wait2()
+    {
+        Task<int> task1 = Task.FromResult(3);
+        Task<int> task2 = Task.FromResult(5);
+        Task<int> task3 = Task.FromResult(7);
+        int[] results = await Task.WhenAll(task1, task2,task3);
+    }
+    #endregion
+
+    #region 等待任意一个任务完成
+
+    private static async Task<int> FirstRespondingUrlAsync(string urlA, string urlB)
+    {
+        var httpClient = new HttpClient();
+        
+        //并发地开始下载两个任务
+        Task<byte[]> downloadA = httpClient.GetByteArrayAsync(urlA);
+        Task<byte[]> downloadB = httpClient.GetByteArrayAsync(urlB);
+        
+        //等待任意一个任务完成
+        Task<byte[]> completedTask = await Task.WhenAny(downloadA, downloadB);
+        
+        //返回从URL下载的内容长度
+        byte[] data = await completedTask;
+        return data.Length;
+    }
+
+    #endregion
 }
